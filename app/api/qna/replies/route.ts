@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     
     const result = await db.collection('qna').updateOne(
       { _id: new ObjectId(data.qnaId) },
-      { $push: { replies: replyData } }
+      { $addToSet: { replies: replyData } }
     );
     
     if (result.matchedCount === 0) {
