@@ -24,22 +24,26 @@ export default function SchoolMap() {
 
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY}&libraries=services,clusterer&autoload=false`;
     script.async = true;
-
     script.onload = () => {
-      kakao.maps.load(() => {
-        setKakaoLoaded(true);
-      });
+      if (typeof kakao !== 'undefined') {
+        kakao.maps.load(() => {
+          setKakaoLoaded(true);
+        });
+      } else {
+        console.error('Kakao Maps SDK 로드 실패');
+        setKakaoLoaded(false);
+      }
     };
-
+    script.onerror = () => {
+      console.error('Kakao Maps SDK 스크립트 로드 실패');
+      setKakaoLoaded(false);
+    };
     document.head.appendChild(script);
 
     return () => {
-      const existingScript = document.querySelector(`script[src="${script.src}"]`);
-      if (existingScript && existingScript.parentNode) {
-        existingScript.parentNode.removeChild(existingScript);
-      }
+      document.head.removeChild(script);
     };
   }, []);
 
@@ -198,6 +202,17 @@ export default function SchoolMap() {
       createMarkers(schools);
     }
   }, [map, schools]);
+
+  if (!kakaoLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">지도 로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Layout>
