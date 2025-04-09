@@ -20,6 +20,7 @@ export default function SchoolMap() {
   const [map, setMap] = useState<any>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<any[]>([]);
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -28,14 +29,7 @@ export default function SchoolMap() {
 
     script.onload = () => {
       kakao.maps.load(() => {
-        if (!mapRef.current) return;
-        
-        const options = {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 3,
-        };
-        const newMap = new kakao.maps.Map(mapRef.current, options);
-        setMap(newMap);
+        setKakaoLoaded(true);
       });
     };
 
@@ -48,6 +42,23 @@ export default function SchoolMap() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (kakaoLoaded && mapRef.current) {
+      initializeMap();
+    }
+  }, [kakaoLoaded]);
+
+  const initializeMap = () => {
+    if (!mapRef.current || !kakao.maps) return;
+    
+    const options = {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
+      level: 3,
+    };
+    const newMap = new kakao.maps.Map(mapRef.current, options);
+    setMap(newMap);
+  };
 
   useEffect(() => {
     fetchSchools();
@@ -106,8 +117,8 @@ export default function SchoolMap() {
   };
 
   const createMarkers = (schools: School[]) => {
-    if (!map) {
-      console.log('Map is not initialized yet');
+    if (!map || !kakao.maps) {
+      console.log('Map is not initialized yet or kakao.maps is not available');
       return;
     }
 
@@ -129,8 +140,6 @@ export default function SchoolMap() {
       } else if (school.data.team === '3팀') {
         markerImageSrc = '/markers/marker_green.png';
       }
-
-      // console.log('Creating marker at position:', position, 'with image:', markerImageSrc);
 
       const markerImage = new kakao.maps.MarkerImage(
         markerImageSrc,
@@ -176,14 +185,6 @@ export default function SchoolMap() {
 
         infoWindow.open(map, marker);
         activeInfoWindow = infoWindow;
-
-        // 닫기 버튼 함수를 전역으로 등록
-        // window.closeInfoWindow = () => {
-        //   if (activeInfoWindow) {
-        //     activeInfoWindow.close();
-        //     activeInfoWindow = null;
-        //   }
-        // };
       });
     });
 
@@ -215,54 +216,83 @@ export default function SchoolMap() {
           <button
             onClick={() => handleFilterChange('all')}
             className={`px-4 py-2 rounded-md ${
-              filter === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === 'all'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            전체 ({schools.length}개)
+            전체
           </button>
           <button
             onClick={() => handleFilterChange('1팀')}
             className={`px-4 py-2 rounded-md ${
-              filter === '1팀' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === '1팀'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            1팀 ({schools.filter(s => s.data.team === '1팀').length}개)
+            1팀
           </button>
           <button
             onClick={() => handleFilterChange('2팀')}
             className={`px-4 py-2 rounded-md ${
-              filter === '2팀' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === '2팀'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            2팀 ({schools.filter(s => s.data.team === '2팀').length}개)
+            2팀
           </button>
           <button
             onClick={() => handleFilterChange('3팀')}
             className={`px-4 py-2 rounded-md ${
-              filter === '3팀' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
+              filter === '3팀'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            3팀 ({schools.filter(s => s.data.team === '3팀').length}개)
+            3팀
           </button>
         </div>
       </div>
-      
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-          {error}
+
+      <div className="bg-white rounded-lg shadow p-6">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500 p-4">{error}</div>
+        ) : (
+          <div className="h-[600px]">
+            <div ref={mapRef} className="w-full h-full"></div>
+          </div>
+        )}
+      </div>
+
+      {selectedSchool && (
+        <div className="mt-6 bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">{selectedSchool.data.name}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-gray-600">주소</p>
+              <p className="font-medium">{selectedSchool.data.address}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">교무실</p>
+              <p className="font-medium">{selectedSchool.data.teachers_room_num}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">행정실</p>
+              <p className="font-medium">{selectedSchool.data.admin_room_num}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">팀</p>
+              <p className="font-medium">{selectedSchool.data.team}</p>
+            </div>
+          </div>
         </div>
       )}
-      
-      <div className="w-full">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div ref={mapRef} id="map" className="w-full h-[600px]" />
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
-              <div className="text-lg text-gray-600">데이터 로딩 중...</div>
-            </div>
-          )}
-        </div>
-      </div>
     </Layout>
   );
 } 
