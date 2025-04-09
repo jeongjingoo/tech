@@ -19,121 +19,99 @@ export default function KakaoMap({ schools, filter, onSchoolSelect }: KakaoMapPr
   const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
-    const script = document.createElement('script');
+    // 이미 스크립트가 로드되어 있으므로 바로 초기화
+    if (typeof kakao !== 'undefined' && kakao.maps) {
+      initializeMap();
+    } else {
+      // 스크립트가 아직 로드되지 않은 경우를 대비
+      const checkKakaoLoaded = setInterval(() => {
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+          clearInterval(checkKakaoLoaded);
+          initializeMap();
+        }
+      }, 100);
+      
+      return () => clearInterval(checkKakaoLoaded);
+    }
+  }, [schools, filter]);
 
-    console.log("map key: " + process.env.NEXT_PUBLIC_KAKAO_MAP_KEY);
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&autoload=false`;
-    script.async = true;
+  const initializeMap = () => {
+    if (!mapRef.current) return;
 
-    script.onload = () => {
-      kakao.maps.load(() => {
-        if (!mapRef.current) return;
-
-        const container = mapRef.current;
-        const options = {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 3,
-        };
-
-        const map = new kakao.maps.Map(container, options);
-        const markers: any[] = [];
-        const bounds = new kakao.maps.LatLngBounds();
-
-        schools.forEach((school) => {
-          const position = new kakao.maps.LatLng(school.data.lat, school.data.lon);
-          bounds.extend(position);
-
-          let markerImageSrc = '/marker/marker_yellow.png';
-          if (school.data.team === '1팀') {
-            markerImageSrc = '/marker/marker_red.png';
-          } else if (school.data.team === '2팀') {
-            markerImageSrc = '/marker/marker_blue.png';
-          } else if (school.data.team === '3팀') {
-            markerImageSrc = '/marker/marker_green.png';
-          }
-
-          const markerImage = new kakao.maps.MarkerImage(
-            markerImageSrc,
-            new kakao.maps.Size(24, 35)
-          );
-
-          const marker = new kakao.maps.Marker({
-            position,
-            image: markerImage,
-          });
-
-          marker.setMap(map);
-          markers.push(marker);
-
-          kakao.maps.event.addListener(marker, 'click', () => {
-            if (infoWindowRef.current) {
-              infoWindowRef.current.close();
-            }
-
-            const content = `
-              <div style="padding:10px;">
-                <h4 style="margin:0 0 5px 0;">${school.data.name}</h4>
-                <p style="margin:0 0 5px 0;">주소: ${school.data.address}</p>
-                <p style="margin:0 0 5px 0;">전화: ${school.data.teachers_room_num}</p>
-                <p style="margin:0 0 5px 0;">담당자: ${school.data.admin_room_num}</p>
-                <p style="margin:0 0 5px 0;">팀: ${school.data.team}</p>
-              </div>
-            `;
-
-            const infoWindow = new kakao.maps.InfoWindow({
-              content,
-              position,
-            });
-
-            infoWindow.open(map, marker);
-            infoWindowRef.current = infoWindow;
-            onSchoolSelect(school);
-          });
-        });
-
-        map.setBounds(bounds);
-        markersRef.current = markers;
-        setMapLoaded(true);
-      });
+    const container = mapRef.current;
+    const options = {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
+      level: 3,
     };
 
-    document.head.appendChild(script);
+    const map = new kakao.maps.Map(container, options);
+    const markers: any[] = [];
+    const bounds = new kakao.maps.LatLngBounds();
 
-    return () => {
-      const existingScript = document.querySelector(`script[src="${script.src}"]`);
-      if (existingScript) {
-        document.head.removeChild(existingScript);
+    // 기존 마커 제거
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    schools.forEach((school) => {
+      const position = new kakao.maps.LatLng(school.data.lat, school.data.lon);
+      bounds.extend(position);
+
+      let markerImageSrc = '/marker/marker_yellow.png';
+      if (school.data.team === '1팀') {
+        markerImageSrc = '/marker/marker_red.png';
+      } else if (school.data.team === '2팀') {
+        markerImageSrc = '/marker/marker_blue.png';
+      } else if (school.data.team === '3팀') {
+        markerImageSrc = '/marker/marker_green.png';
       }
-    };
-  }, [schools, onSchoolSelect]);
 
-  useEffect(() => {
-    if (!mapLoaded) return;
-
-    markersRef.current.forEach((marker) => {
-      const school = schools.find((s) => 
-        s.data.lat === marker.getPosition().getLat() && 
-        s.data.lon === marker.getPosition().getLng()
+      const markerImage = new kakao.maps.MarkerImage(
+        markerImageSrc,
+        new kakao.maps.Size(24, 35)
       );
 
-      if (school) {
-        if (filter === 'all' || school.data.team === filter) {
-          marker.setMap(mapRef.current ? new kakao.maps.Map(mapRef.current) : null);
-        } else {
-          marker.setMap(null);
+      const marker = new kakao.maps.Marker({
+        position,
+        image: markerImage,
+      });
+
+      marker.setMap(map);
+      markers.push(marker);
+
+      kakao.maps.event.addListener(marker, 'click', () => {
+        if (infoWindowRef.current) {
+          infoWindowRef.current.close();
         }
-      }
+
+        const content = `
+          <div style="padding:10px;">
+            <h4 style="margin:0 0 5px 0;">${school.data.name}</h4>
+            <p style="margin:0 0 5px 0;">주소: ${school.data.address}</p>
+            <p style="margin:0 0 5px 0;">전화: ${school.data.teachers_room_num}</p>
+            <p style="margin:0 0 5px 0;">담당자: ${school.data.admin_room_num}</p>
+            <p style="margin:0 0 5px 0;">팀: ${school.data.team}</p>
+          </div>
+        `;
+
+        const infoWindow = new kakao.maps.InfoWindow({
+          content,
+          position,
+        });
+
+        infoWindow.open(map, marker);
+        infoWindowRef.current = infoWindow;
+        onSchoolSelect(school);
+      });
     });
-  }, [filter, schools, mapLoaded]);
+
+    map.setBounds(bounds);
+    markersRef.current = markers;
+    setMapLoaded(true);
+  };
 
   return (
-    <div className="relative w-full h-[600px]">
-      <div ref={mapRef} className="w-full h-full" />
-      {!mapLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
-          <div className="text-lg text-gray-600">지도 로딩 중...</div>
-        </div>
-      )}
+    <div className="w-full h-full min-h-[500px]">
+      <div ref={mapRef} className="w-full h-full"></div>
     </div>
   );
 } 

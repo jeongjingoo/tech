@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,8 +15,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY || 'd1ce32415b1038008e9c94dee00914bc';
+  
   return (
     <html lang="ko" className="h-full">
+      <head>
+        <Script
+          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`}
+          strategy="beforeInteractive"
+        />
+      </head>
       <body className={`${inter.className} min-h-full bg-background text-foreground antialiased`}>
         {children}
       </body>
