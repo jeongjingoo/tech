@@ -178,12 +178,12 @@ export default function SchoolMap() {
         activeInfoWindow = infoWindow;
 
         // 닫기 버튼 함수를 전역으로 등록
-        window.closeInfoWindow = () => {
-          if (activeInfoWindow) {
-            activeInfoWindow.close();
-            activeInfoWindow = null;
-          }
-        };
+        // window.closeInfoWindow = () => {
+        //   if (activeInfoWindow) {
+        //     activeInfoWindow.close();
+        //     activeInfoWindow = null;
+        //   }
+        // };
       });
     });
 
