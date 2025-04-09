@@ -221,7 +221,7 @@ export default function SchoolMap() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            전체
+            전체 ({schools.length})
           </button>
           <button
             onClick={() => handleFilterChange('1팀')}
@@ -231,7 +231,7 @@ export default function SchoolMap() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            1팀
+            1팀 ({schools.filter(school => school.data.team === '1팀').length})
           </button>
           <button
             onClick={() => handleFilterChange('2팀')}
@@ -241,7 +241,7 @@ export default function SchoolMap() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            2팀
+            2팀 ({schools.filter(school => school.data.team === '2팀').length})
           </button>
           <button
             onClick={() => handleFilterChange('3팀')}
@@ -251,7 +251,7 @@ export default function SchoolMap() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            3팀
+            3팀 ({schools.filter(school => school.data.team === '3팀').length})
           </button>
         </div>
       </div>
