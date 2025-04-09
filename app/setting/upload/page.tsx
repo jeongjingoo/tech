@@ -44,33 +44,21 @@ export default function SettingPage() {
     try {
       setUploadStatus('업로드 중...');
       
-      // 엑셀 파일 읽기
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json<ExcelData>(worksheet);
+      const formData = new FormData();
+      formData.append('file', file);
 
-        // MongoDB에 데이터 저장
-        const response = await fetch('/api/upload-excel', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(jsonData),
-        });
+      const response = await fetch('/api/upload-excel', {
+        method: 'POST',
+        body: formData,
+      });
 
-        if (response.ok) {
-          setUploadStatus('업로드가 완료되었습니다.');
-          setPreviewData([]);
-          setFile(null);
-        } else {
-          setUploadStatus('업로드 중 오류가 발생했습니다.');
-        }
-      };
-      reader.readAsBinaryString(file);
+      if (response.ok) {
+        setUploadStatus('업로드가 완료되었습니다.');
+        setPreviewData([]);
+        setFile(null);
+      } else {
+        setUploadStatus('업로드 중 오류가 발생했습니다.');
+      }
     } catch (error) {
       setUploadStatus('오류가 발생했습니다: ' + error);
     }
