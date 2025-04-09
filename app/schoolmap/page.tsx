@@ -23,26 +23,44 @@ export default function SchoolMap() {
   const [kakaoLoaded, setKakaoLoaded] = useState(false);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&libraries=services,clusterer`;
-    script.async = true;
-    
-    script.onload = () => {
-      setKakaoLoaded(true);
+    const loadKakaoMap = () => {
+      const script = document.createElement('script');
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&libraries=services,clusterer`;
+      script.async = true;
+      
+      script.onload = () => {
+        if (typeof kakao !== 'undefined') {
+          setKakaoLoaded(true);
+        } else {
+          console.error('Kakao Maps SDK 로드 실패: kakao 객체가 정의되지 않음');
+          setKakaoLoaded(false);
+        }
+      };
+      
+      script.onerror = (error) => {
+        console.error('Kakao Maps SDK 스크립트 로드 실패:', error);
+        setKakaoLoaded(false);
+      };
+      
+      document.head.appendChild(script);
     };
-    
-    script.onerror = () => {
-      console.error('Kakao Maps SDK 스크립트 로드 실패');
-      setKakaoLoaded(false);
-    };
-    
-    document.head.appendChild(script);
+
+    // 이미 스크립트가 로드되어 있는지 확인
+    const existingScript = document.querySelector('script[src*="dapi.kakao.com/v2/maps/sdk.js"]');
+    if (!existingScript) {
+      loadKakaoMap();
+    } else {
+      // 이미 로드된 경우 kakao 객체 확인
+      if (typeof kakao !== 'undefined') {
+        setKakaoLoaded(true);
+      } else {
+        // 스크립트는 있지만 kakao 객체가 없는 경우 다시 로드
+        loadKakaoMap();
+      }
+    }
 
     return () => {
-      const existingScript = document.querySelector(`script[src="${script.src}"]`);
-      if (existingScript && existingScript.parentNode) {
-        existingScript.parentNode.removeChild(existingScript);
-      }
+      // 컴포넌트 언마운트 시 스크립트 제거하지 않음 (다른 컴포넌트에서 사용할 수 있음)
     };
   }, []);
 
