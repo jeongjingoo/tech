@@ -26,7 +26,6 @@ export default function SchoolMap() {
     const loadKakaoMap = () => {
       const script = document.createElement('script');
       script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&libraries=services,clusterer`;
-      script.async = true;
       
       script.onload = () => {
         if (typeof kakao !== 'undefined') {
