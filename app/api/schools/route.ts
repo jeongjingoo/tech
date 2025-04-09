@@ -12,11 +12,11 @@ export async function GET(request: Request) {
     const { db } = await connectToDatabase();
     
     // 전체 데이터 수 조회
-    const total = await db.collection('school').countDocuments();
+    const total = await db.collection('schools').countDocuments();
     console.log('전체 데이터 수:', total);
     
     // 페이지네이션된 데이터 조회
-    const schools = await db.collection('school')
+    const schools = await db.collection('schools')
       .find({})
       .skip(skip)
       .limit(limit)
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     };
     
     console.log('추가할 변환된 데이터:', schoolData);
-    const result = await db.collection('school').insertOne(schoolData);
+    const result = await db.collection('schools').insertOne(schoolData);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error('데이터 추가 오류:', error);
@@ -98,7 +98,7 @@ export async function PUT(request: Request) {
     };
     
     console.log('수정할 변환된 데이터:', schoolData);
-    const result = await db.collection('school').updateOne(
+    const result = await db.collection('schools').updateOne(
       { _id: new ObjectId(_id) },
       { $set: schoolData }
     );
@@ -117,7 +117,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'ID가 필요합니다.' }, { status: 400 });
     }
     const { db } = await connectToDatabase();
-    const result = await db.collection('school').deleteOne({ _id: new ObjectId(id) });
+    const result = await db.collection('schools').deleteOne({ _id: new ObjectId(id) });
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error('데이터 삭제 오류:', error);
