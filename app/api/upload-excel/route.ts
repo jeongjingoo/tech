@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 
 // MongoDB 연결 설정
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/schools';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // 데이터 모델 정의
 const ExcelDataSchema = new mongoose.Schema({
@@ -15,6 +15,10 @@ const ExcelData = mongoose.model('school', ExcelDataSchema);
 
 export async function POST(request: Request) {
   try {
+    if (!MONGODB_URI) {
+      throw new Error('MONGODB_URI가 설정되지 않았습니다.');
+    }
+    
     // MongoDB 연결
     await mongoose.connect(MONGODB_URI);
 
