@@ -1,92 +1,65 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-
-// MongoDB 연결 설정
-const MONGODB_URI = process.env.MONGODB_URI;
-
-// 테크메니저 스키마 정의
-const TechnicianSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  team: { type: String, required: true },
-  id: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
-}, { collection: 'technicians' });
-
-// 모델 생성 (이미 존재하면 재사용)
-const Technician = mongoose.models.Technician || mongoose.model('Technician', TechnicianSchema);
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 // GET: 모든 테크메니저 조회
 export async function GET() {
   try {
-    if (!MONGODB_URI) {
-      throw new Error('MONGODB_URI가 설정되지 않았습니다.');
-    }
-    await mongoose.connect(MONGODB_URI);
-    const technicians = await Technician.find().sort({ createdAt: -1 });
+    const { db } = await connectToDatabase();
+    const technicians = await db.collection('technicians').find().toArray();
     return NextResponse.json({ success: true, data: technicians });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json({ success: false, error: error }, { status: 500 });
-  } finally {
-    await mongoose.disconnect();
   }
 }
 
 // POST: 새로운 테크메니저 추가
 export async function POST(request: Request) {
   try {
-    if (!MONGODB_URI) {
-      throw new Error('MONGODB_URI가 설정되지 않았습니다.');
-    }
-    await mongoose.connect(MONGODB_URI);
+    const { db } = await connectToDatabase();
     const data = await request.json();
     console.log(data);
-    const technician = await Technician.create(data);
-    return NextResponse.json({ success: true, data: technician });
+    const result = await db.collection('technicians').insertOne(data);
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json({ success: false, error: error }, { status: 500 });
-  } finally {
-    await mongoose.disconnect();
   }
 }
 
 // PUT: 테크메니저 정보 수정
 export async function PUT(request: Request) {
   try {
-    if (!MONGODB_URI) {
-      throw new Error('MONGODB_URI가 설정되지 않았습니다.');
-    }
-    await mongoose.connect(MONGODB_URI);
+    const { db } = await connectToDatabase();
     const data = await request.json();
     const { _id, ...updateData } = data;
-    const technician = await Technician.findByIdAndUpdate(_id, updateData, { new: true });
-    return NextResponse.json({ success: true, data: technician });
+    const result = await db.collection('technicians').updateOne(
+      { _id: new ObjectId(_id) },
+      { $set: updateData }
+    );
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json({ success: false, error: error }, { status: 500 });
-  } finally {
-    await mongoose.disconnect();
   }
 }
 
 // DELETE: 테크메니저 삭제
 export async function DELETE(request: Request) {
   try {
-    if (!MONGODB_URI) {
-      throw new Error('MONGODB_URI가 설정되지 않았습니다.');
-    }
-    await mongoose.connect(MONGODB_URI);
+    const { db } = await connectToDatabase();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    await Technician.findByIdAndDelete(id);
-    return NextResponse.json({ success: true });
+    
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'ID가 제공되지 않았습니다.' }, { status: 400 });
+    }
+    
+    const result = await db.collection('technicians').deleteOne({ _id: new ObjectId(id) });
+    return NextResponse.json({ success: true, data: result });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json({ success: false, error: error }, { status: 500 });
-  } finally {
-    await mongoose.disconnect();
   }
 } 
