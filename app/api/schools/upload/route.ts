@@ -6,7 +6,7 @@ interface ExcelRow {
   division?: string;
   level?: string;
   name?: string;
-  istech?: string;
+  istechnical?: string;
   total_classes?: number;
   teachers_room_num?: number;
   admin_room_num?: number;
@@ -53,9 +53,9 @@ export async function POST(request: Request) {
             division: row.division || '',
             level: row.level || '',
             name: row.name || '',
-            tech: row.tech || '',
+            tech: row.istechnical || '',
             total_classes: Number(row.total_classes) || 0,
-            teacher_room_num: Number(row.teacher_room_num) || 0,
+            teacher_room_num: Number(row.teachers_room_num) || 0,
             admin_room_num: Number(row.admin_room_num) || 0,
             team: row.team || '',
           },
