@@ -1,15 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Image from 'next/image';
 import KakaoMap from '../components/KakaoMap';
 import { School } from '../types/school';
-
-// @ts-ignore
-declare const kakao: any;
-let map: any;
-let activeInfoWindow: any;
 
 export default function SchoolMap() {
   const [schools, setSchools] = useState<School[]>([]);
@@ -17,70 +12,6 @@ export default function SchoolMap() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('all');
-  const [map, setMap] = useState<any>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<any[]>([]);
-  const [kakaoLoaded, setKakaoLoaded] = useState(false);
-
-  useEffect(() => {
-    const loadKakaoMap = () => {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&libraries=services,clusterer`;
-        
-        script.onload = () => {
-          if (typeof kakao !== 'undefined') {
-            resolve(true);
-          } else {
-            reject(new Error('kakao 객체가 정의되지 않음'));
-          }
-        };
-        
-        script.onerror = (error) => {
-          reject(error);
-        };
-        
-        document.head.appendChild(script);
-      });
-    };
-
-    const initializeKakaoMap = async () => {
-      try {
-        // 이미 스크립트가 로드되어 있는지 확인
-        const existingScript = document.querySelector('script[src*="dapi.kakao.com/v2/maps/sdk.js"]');
-        
-        if (!existingScript) {
-          await loadKakaoMap();
-        } else if (typeof kakao === 'undefined') {
-          await loadKakaoMap();
-        }
-        
-        setKakaoLoaded(true);
-      } catch (error) {
-        console.error('Kakao Maps SDK 로드 실패:', error);
-        setKakaoLoaded(false);
-      }
-    };
-
-    initializeKakaoMap();
-  }, []);
-
-  useEffect(() => {
-    if (kakaoLoaded && mapRef.current) {
-      initializeMap();
-    }
-  }, [kakaoLoaded]);
-
-  const initializeMap = () => {
-    if (!mapRef.current || !kakao.maps) return;
-    
-    const options = {
-      center: new kakao.maps.LatLng(37.5665, 126.9780),
-      level: 3,
-    };
-    const newMap = new kakao.maps.Map(mapRef.current, options);
-    setMap(newMap);
-  };
 
   useEffect(() => {
     fetchSchools();
@@ -103,9 +34,6 @@ export default function SchoolMap() {
       }
       
       setSchools(result.data);
-      if (map) {
-        createMarkers(result.data);
-      }
     } catch (error) {
       console.error('학교 데이터 조회 오류:', error);
       setError('데이터를 불러오는데 실패했습니다.');
@@ -120,117 +48,7 @@ export default function SchoolMap() {
 
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter);
-    if (map) {
-      markersRef.current.forEach(marker => {
-        const school = marker.school;
-        if (newFilter === 'all') {
-          marker.setMap(map);
-        } else if (newFilter === '1팀' && school.data.team === '1팀') {
-          marker.setMap(map);
-        } else if (newFilter === '2팀' && school.data.team === '2팀') {
-          marker.setMap(map);
-        } else if (newFilter === '3팀' && school.data.team === '3팀') {
-          marker.setMap(map);
-        } else {
-          marker.setMap(null);
-        }
-      });
-    }
   };
-
-  const createMarkers = (schools: School[]) => {
-    if (!map || !kakao.maps) {
-      console.log('Map is not initialized yet or kakao.maps is not available');
-      return;
-    }
-
-    // 기존 마커 제거
-    markersRef.current.forEach(marker => marker.setMap(null));
-    markersRef.current = [];
-
-    const bounds = new kakao.maps.LatLngBounds();
-
-    schools.forEach((school) => {
-      const position = new kakao.maps.LatLng(school.data.lat, school.data.lon);
-      bounds.extend(position);
-
-      let markerImageSrc = '/markers/marker_yellow.png';
-      if (school.data.team === '1팀') {
-        markerImageSrc = '/markers/marker_red.png';
-      } else if (school.data.team === '2팀') {
-        markerImageSrc = '/markers/marker_blue.png';
-      } else if (school.data.team === '3팀') {
-        markerImageSrc = '/markers/marker_green.png';
-      }
-
-      const markerImage = new kakao.maps.MarkerImage(
-        markerImageSrc,
-        new kakao.maps.Size(45, 48),
-        {
-          offset: new kakao.maps.Point(19, 48)
-        }
-      );
-
-      const marker = new kakao.maps.Marker({
-        position,
-        image: markerImage,
-      });
-
-      // 마커에 학교 정보 저장
-      marker.school = school;
-
-      marker.setMap(map);
-      markersRef.current.push(marker);
-
-      kakao.maps.event.addListener(marker, 'click', () => {
-        if (activeInfoWindow) {
-          activeInfoWindow.close();
-        }
-
-        const content = `
-          <div style="padding:10px;color:black;min-height:200px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-              <h4 style="margin:0;">${school.data.name}</h4>               
-            </div>
-            <p style="margin:0 0 5px 0;">주소: ${school.data.address}</p>
-            <p style="margin:0 0 5px 0;">교무실: ${school.data.teachers_room_num}</p>
-            <p style="margin:0 0 5px 0;">행정실: ${school.data.admin_room_num}</p>
-            <p style="margin:0 0 5px 0;">팀: ${school.data.team}</p>
-          </div>
-        `;
-
-        const infoWindow = new kakao.maps.InfoWindow({
-          content,
-          position,
-          removable: true
-        });
-
-        infoWindow.open(map, marker);
-        activeInfoWindow = infoWindow;
-      });
-    });
-
-    console.log('Setting map bounds');
-    map.setBounds(bounds);
-  };
-
-  useEffect(() => {
-    if (map && schools.length > 0) {
-      console.log('Map and schools are ready, creating markers');
-      createMarkers(schools);
-    }
-  }, [map, schools]);
-
-  if (!kakaoLoaded) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">지도 로딩 중...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <Layout>
@@ -298,7 +116,11 @@ export default function SchoolMap() {
           <div className="text-center text-red-500 p-4">{error}</div>
         ) : (
           <div className="h-[600px]">
-            <div ref={mapRef} className="w-full h-full"></div>
+            <KakaoMap
+              schools={schools}
+              filter={filter}
+              onSchoolSelect={handleSchoolSelect}
+            />
           </div>
         )}
       </div>
