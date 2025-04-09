@@ -9,10 +9,10 @@ export async function GET() {
     const technicianCount = await db.collection('technicians').countDocuments();
     
     // 학교 수 가져오기
-    const schoolCount = await db.collection('school').countDocuments();
+    const schoolCount = await db.collection('schools').countDocuments();
     
     // 점검 완료된 학교 수 가져오기
-    const completedSchoolCount = await db.collection('school').countDocuments({
+    const completedSchoolCount = await db.collection('schools').countDocuments({
       'data.iscomp': 1
     });
 
