@@ -40,15 +40,15 @@ export default function KakaoMap({ schools, filter, onSchoolSelect }: KakaoMapPr
         const bounds = new kakao.maps.LatLngBounds();
 
         schools.forEach((school) => {
-          const position = new kakao.maps.LatLng(school.lat, school.lon);
+          const position = new kakao.maps.LatLng(school.data.lat, school.data.lon);
           bounds.extend(position);
 
           let markerImageSrc = '/marker/marker_yellow.png';
-          if (school.team === '1팀') {
+          if (school.data.team === '1팀') {
             markerImageSrc = '/marker/marker_red.png';
-          } else if (school.team === '2팀') {
+          } else if (school.data.team === '2팀') {
             markerImageSrc = '/marker/marker_blue.png';
-          } else if (school.team === '3팀') {
+          } else if (school.data.team === '3팀') {
             markerImageSrc = '/marker/marker_green.png';
           }
 
@@ -72,11 +72,11 @@ export default function KakaoMap({ schools, filter, onSchoolSelect }: KakaoMapPr
 
             const content = `
               <div style="padding:10px;">
-                <h4 style="margin:0 0 5px 0;">${school.school_name}</h4>
-                <p style="margin:0 0 5px 0;">주소: ${school.address}</p>
-                <p style="margin:0 0 5px 0;">전화: ${school.phone}</p>
-                <p style="margin:0 0 5px 0;">담당자: ${school.stuff}</p>
-                <p style="margin:0 0 5px 0;">팀: ${school.team}</p>
+                <h4 style="margin:0 0 5px 0;">${school.data.name}</h4>
+                <p style="margin:0 0 5px 0;">주소: ${school.data.address}</p>
+                <p style="margin:0 0 5px 0;">전화: ${school.data.teachers_room_num}</p>
+                <p style="margin:0 0 5px 0;">담당자: ${school.data.admin_room_num}</p>
+                <p style="margin:0 0 5px 0;">팀: ${school.data.team}</p>
               </div>
             `;
 
@@ -112,12 +112,12 @@ export default function KakaoMap({ schools, filter, onSchoolSelect }: KakaoMapPr
 
     markersRef.current.forEach((marker) => {
       const school = schools.find((s) => 
-        s.lat === marker.getPosition().getLat() && 
-        s.lon === marker.getPosition().getLng()
+        s.data.lat === marker.getPosition().getLat() && 
+        s.data.lon === marker.getPosition().getLng()
       );
 
       if (school) {
-        if (filter === 'all' || school.team === filter) {
+        if (filter === 'all' || school.data.team === filter) {
           marker.setMap(mapRef.current ? new kakao.maps.Map(mapRef.current) : null);
         } else {
           marker.setMap(null);
