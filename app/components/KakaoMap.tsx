@@ -176,8 +176,8 @@ export default function KakaoMap({ schools, filter, onSchoolSelect }: KakaoMapPr
             </div>
           `;
           
-          infoWindow.setContent(content);
-          infoWindow.open(map, marker);
+          (infoWindow as any).setContent(content);
+          (infoWindow as any).open(map, marker);
           onSchoolSelect(school);
         });
       });
