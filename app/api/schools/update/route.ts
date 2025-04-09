@@ -16,7 +16,7 @@ export async function PUT(request: Request) {
     }
     
     const { db } = await connectToDatabase();
-    const result = await db.collection('school').updateOne(
+    const result = await db.collection('schools').updateOne(
       { _id: new ObjectId(id) },
       { $set: { 'data.team': team } }
     );

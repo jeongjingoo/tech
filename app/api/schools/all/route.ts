@@ -7,11 +7,11 @@ export async function GET() {
     const { db } = await connectToDatabase();
     
     // 전체 데이터 수 조회
-    const total = await db.collection('school').countDocuments();
+    const total = await db.collection('schools').countDocuments();
     console.log('전체 데이터 수:', total);
     
     // 모든 데이터 조회
-    const schools = await db.collection('school')
+    const schools = await db.collection('schools')
       .find({})
       .toArray();
     
