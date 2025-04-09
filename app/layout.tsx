@@ -19,13 +19,12 @@ export default function RootLayout({
   
   return (
     <html lang="ko" className="h-full">
-      <head>
-        <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`}
-          strategy="beforeInteractive"
-        />
-      </head>
       <body className={`${inter.className} min-h-full bg-background text-foreground antialiased`}>
+        <Script
+          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}`}
+          strategy="beforeInteractive"
+          crossOrigin="anonymous"
+        />
         {children}
       </body>
     </html>
