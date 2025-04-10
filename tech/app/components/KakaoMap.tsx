@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { School } from '../../types/school';
+import { School } from '@/types/school';
 
 // @ts-ignore
 declare const kakao: any;
