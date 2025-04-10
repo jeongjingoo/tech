@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
+    "@types/kakao-js-sdk": "^1.39.5",
     "date-fns": "^4.1.0",
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.1",
