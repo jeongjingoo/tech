@@ -1,7 +1,7 @@
 import Script from 'next/script';
 import { Map } from 'react-kakao-maps-sdk';
 
-const KAKAO_MAP_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=43b01fe8fe52caf6f21bc19d256eca8&autoload=false`;
+const KAKAO_MAP_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=d1ce32415b1038008e9c94dee00914bc&autoload=false`;
 
 const KakaoMap = () => {
   return (
