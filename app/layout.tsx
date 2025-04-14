@@ -15,16 +15,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY || '43b01fe8fe52caf6f21bc19d256eca8';
+  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
   
   return (
     <html lang="ko" className="h-full">
       <head>
-        <script
+        {/* <script
           type="text/javascript"
           src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}`}
           async
-        />
+        /> */}
       </head>
       <body className={`${inter.className} min-h-full bg-background text-foreground antialiased`}>
         {children}
