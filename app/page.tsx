@@ -21,6 +21,7 @@ export default function Home() {
     completedSchoolCount: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+ 
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -38,7 +39,12 @@ export default function Home() {
       const result = await response.json();
       
       if (result.success) {
-        setStats(result.data);
+        const data = {
+          technicianCount: result.data.technicianCount || 0,
+          schoolCount: result.data.schoolCount || 0,
+          completedSchoolCount: result.data.completedSchoolCount || 0
+        };
+        setStats(data);
       }
     } catch (error) {
       console.error('통계 데이터 조회 오류:', error);
@@ -102,7 +108,7 @@ export default function Home() {
         <div className="p-6">
           <p className="text-gray-500">여기에 최근 활동 내역이 표시됩니다.</p>
         </div>
-      </div>
+      </div>      
     </Layout>
   );
 }

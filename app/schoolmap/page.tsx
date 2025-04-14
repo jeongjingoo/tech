@@ -125,7 +125,7 @@ export default function SchoolMap() {
         )}
       </div>
 
-      {selectedSchool && (
+      {/* {selectedSchool && (
         <div className="mt-6 bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">{selectedSchool.data.name}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -147,7 +147,7 @@ export default function SchoolMap() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </Layout>
   );
 } 

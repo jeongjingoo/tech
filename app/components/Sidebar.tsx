@@ -20,7 +20,8 @@ import {
   WrenchIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  BuildingOfficeIcon,
+  BuildingOfficeIcon, 
+  WifiIcon,
 } from '@heroicons/react/24/outline';
 
 const menuItems = [
@@ -29,7 +30,8 @@ const menuItems = [
   { name: '유지보수업체', icon: WrenchIcon, href: '/maintenance' },
   { name: 'Q&A', icon: DocumentDuplicateIcon, href: '/qna' },
   { name: '일정표', icon: CalendarIcon, href: '/calendar' },
-  { name: '테크메니저', icon: UserGroupIcon, href: '/technician' },
+  { name: '테크메니저', icon: UserGroupIcon, href: '/technician' }, 
+  { name: '무선 속도측정', icon: WifiIcon, href: '/wifi' },
   { 
     name: '설정', 
     icon: Cog6ToothIcon, 
