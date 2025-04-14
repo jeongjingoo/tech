@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
+    "@rtbjs/network-speed-test": "^1.0.2",
     "@types/kakao-js-sdk": "^1.39.5",
     "critters": "^0.0.23",
     "date-fns": "^4.1.0",
