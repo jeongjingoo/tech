@@ -15,7 +15,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY || 'd1ce32415b1038008e9c94dee00914bc';
+  const apiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY || '43b01fe8fe52caf6f21bc19d256eca8';
   
   return (
     <html lang="ko" className="h-full">
