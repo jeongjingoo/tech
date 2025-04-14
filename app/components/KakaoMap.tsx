@@ -5,11 +5,11 @@ const KAKAO_MAP_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT
 
 const KakaoMap = () => {
   return (
-    <div>
-      <Script src={KAKAO_MAP_URL} strategy='beforeInteractive'/>
-      <Map center={{lat: 37.497930, lng: 127.027596 }}
-        style={{ width: '100%', height: '100%' }}></Map>
-    </div>
+    <>
+    <Script src={KAKAO_MAP_URL} strategy="beforeInteractive" />
+      <Map center={{ lat: 33.450701, lng: 126.570667 }} style={{ width: '100%', height: '100%' }}>
+      </Map>
+  </>
   );
 };
 
