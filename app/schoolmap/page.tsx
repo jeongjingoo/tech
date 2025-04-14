@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -117,7 +116,11 @@ export default function SchoolMap() {
           <div className="text-center text-red-500 p-4">{error}</div>
         ) : (
           <div className="h-[600px]">
-            <KakaoMap/>
+            <KakaoMap 
+              schools={schools}
+              filter={filter}
+              onSchoolSelect={handleSchoolSelect}
+            />
           </div>
         )}
       </div>
